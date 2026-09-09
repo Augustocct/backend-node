@@ -3,6 +3,8 @@ const logger = require('./middleware/logger');
 
 const app = express();
 
+const authMiddleware = require("./middleware/auth");
+
 const chamadosRoutes = require("./routes/chamados.routes");
 
 const loginRoutes = require("./routes/login.routes");
@@ -13,12 +15,18 @@ app.use(express.json());
 
 app.use("/login", loginRoutes);
 
-app.use("/chamados", chamadosRoutes);
+app.use("/chamados", authMiddleware, chamadosRoutes);
 
 
-app.get("/", (req, res) => {
+app.get("/", authMiddleware, async (req, res) => {
     res.json({
         mensagem: "API de chamados funcionando!"
+    });
+});
+
+app.get("/chamados", authMiddleware, async (req, res) => {
+    res.json({
+        mensagem: "precisa estar logado!"
     });
 });
 
