@@ -5,9 +5,13 @@ const app = express();
 
 const chamadosRoutes = require("./routes/chamados.routes");
 
+const loginRoutes = require("./routes/login.routes");
+
 app.use(logger);
 
 app.use(express.json());
+
+app.use("/login", loginRoutes);
 
 app.use("/chamados", chamadosRoutes);
 
