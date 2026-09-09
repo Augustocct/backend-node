@@ -1,0 +1,35 @@
+const express = require("express");
+const logger = require('./middleware/logger');
+
+const app = express();
+
+const chamadosRoutes = require("./routes/chamados.routes");
+
+app.use(logger);
+
+app.use(express.json());
+
+app.use("/chamados", chamadosRoutes);
+
+
+app.get("/", (req, res) => {
+    res.json({
+        mensagem: "API de chamados funcionando!"
+    });
+});
+
+app.listen(3000, () => {
+    console.log("Servidor rodando em http://localhost:3000");
+});
+
+const pool = require("./database/database");
+
+pool.query("SELECT NOW()", (error, result) => {
+    if (error) {
+        console.error("Erro ao conectar no banco:", error);
+        return;
+    }
+
+    console.log("Banco conectado!");
+    console.log(result.rows);
+});
