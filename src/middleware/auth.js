@@ -1,5 +1,7 @@
 const jwt = require("jsonwebtoken");
 
+const blacklist = require("../service/tokenBlacklist");
+
 const authMiddleware = (req, res, next) => {
 
     const authHeader = req.headers.authorization;
@@ -11,6 +13,13 @@ const authMiddleware = (req, res, next) => {
     }
 
     const token = authHeader.replace("Bearer ", "");
+
+     if (blacklist.has(token)) {
+        return res.status(401).json({
+            message: "Token revogado"
+        });
+    }
+
 
     try {
 
