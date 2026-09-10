@@ -38,7 +38,32 @@ router.post("/criar", authMiddleware, roleMiddleware("admin"), async (req, res) 
             mensagem: "Erro ao criar usuário"
         });
     }
-})
+});
+
+router.delete("/delete/:id", authMiddleware, roleMiddleware("admin"), async (req, res) => {
+        const { id } = req.params
+
+        try {
+        const result = await pool.query(
+        `DELETE FROM users
+        WHERE id = $1
+        RETURNING *`,
+        [id]
+        );
+    if (result.rows.length === 0) {
+            return res.status(404).json({
+                mensagem: "Usuario não encontrado"
+            });
+        }
+
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            mensagem: "Erro ao Deletar o usuario"
+        });
+    }
+});
 
 router.post("/entrar", async (req, res) => {
     // PEGA O EMAIL E A SENHA DA REQUISICAO
