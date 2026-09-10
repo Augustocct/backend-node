@@ -4,13 +4,17 @@ const pool = require("../database/database");
 
 const blacklist = require("../service/tokenBlacklist");
 
+const roleMiddleware = require("../middleware/role");
+
+const authMiddleware = require("../middleware/auth");
+
 const router = express.Router();
 
 const jwt = require('jsonwebtoken');
 
 const bcrypt = require('bcrypt');
 
-router.post("/criar", async (req, res) => {
+router.post("/criar", authMiddleware, roleMiddleware("admin"), async (req, res) => {
     const { name, email, password, role} = req.body;
 
     try {
@@ -43,7 +47,7 @@ router.post("/entrar", async (req, res) => {
     // TENTA CONSULTAR O BANCO E BUSCAR PELO EMAIL E VER SE O USER EXISTE
     try {
         const result = await pool.query(
-            `SELECT id, name, email, password_hash
+            `SELECT id, name, email, password_hash, role
              FROM users
              WHERE email = $1`,
             [email]
@@ -71,7 +75,8 @@ router.post("/entrar", async (req, res) => {
         const payload = {
             id: user.id,
             name: user.name,
-            email: user.email
+            email: user.email,
+            role: user.role
         };
 
         // PEGA O SECRET ARMAZENADO NO .ENV
@@ -81,23 +86,24 @@ router.post("/entrar", async (req, res) => {
         const token = jwt.sign(payload, secret, {
             expiresIn: "15m"
         });
-
+        
         //SE VOLTOU 200 CAI AQUI
         return res.status(200).json({
             mensagem: "Login realizado com sucesso",
             accessToken: token
         });
-
+        
+        
     } catch (error) {
         console.error(error);
-
+        
         return res.status(500).json({
             mensagem: "Erro ao realizar login"
         });
     }
 });
 
-router.post("/sair", (req, res) => {
+router.post("/sair", authMiddleware, (req, res) => {
 
     //PEGA O TOKEN DA SESSAO ATUAL
     const authHeader = req.headers["authorization"];

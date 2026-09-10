@@ -4,7 +4,11 @@ const pool = require("../database/database");
 
 const router = express.Router();
 
-router.post("/create", async (req, res) => {
+const roleMiddleware = require("../middleware/role");
+
+const authMiddleware = require("../middleware/auth");
+
+router.post("/create", authMiddleware, async (req, res) => {
     const { titulo, descricao, prioridade } = req.body;
 
     try {
@@ -26,7 +30,7 @@ router.post("/create", async (req, res) => {
     }
 });
 
-router.get("/list", async (req, res) => {
+router.get("/list", authMiddleware, async (req, res) => {
     try {
         const result = await pool.query("SELECT * FROM chamados");
         res.json(result.rows);
@@ -38,7 +42,7 @@ router.get("/list", async (req, res) => {
     }
 });
 
-router.put("/update/:id", async (req, res) => {
+router.put("/update/:id", authMiddleware, async (req, res) => {
     const { id } = req.params;
     const { titulo, descricao, prioridade } = req.body;
 
@@ -66,7 +70,7 @@ router.put("/update/:id", async (req, res) => {
     }
 });
 
-router.put("/update-status/:id", async (req, res) => {
+router.put("/update-status/:id", authMiddleware, async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
@@ -93,7 +97,7 @@ router.put("/update-status/:id", async (req, res) => {
     }
 });
 
-router.put("/update-priority/:id", async (req, res) => {
+router.put("/update-priority/:id", authMiddleware, async (req, res) => {
     const { id } = req.params;
     const { prioridade } = req.body;
 
@@ -120,7 +124,7 @@ router.put("/update-priority/:id", async (req, res) => {
     }
 })
 
-router.delete("/delete/:id", async (req, res) => {
+router.delete("/delete/:id", authMiddleware, roleMiddleware("admin"), async (req, res) => {
     const { id } = req.params;
     
     try {

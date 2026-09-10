@@ -5,6 +5,8 @@ const app = express();
 
 const authMiddleware = require("./middleware/auth");
 
+const roleMiddleware = require("./middleware/role");
+
 const chamadosRoutes = require("./routes/chamados.routes");
 
 const loginRoutes = require("./routes/login.routes");
@@ -15,16 +17,16 @@ app.use(express.json());
 
 app.use("/login", loginRoutes);
 
-app.use("/chamados", authMiddleware, chamadosRoutes);
+app.use("/chamados", chamadosRoutes);
 
 
-app.get("/", authMiddleware, async (req, res) => {
+app.get("/", async (req, res) => {
     res.json({
         mensagem: "API de chamados funcionando!"
     });
 });
 
-app.get("/chamados", authMiddleware, async (req, res) => {
+app.get("/chamados", async (req, res) => {
     res.json({
         mensagem: "precisa estar logado!"
     });
