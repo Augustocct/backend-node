@@ -8,8 +8,6 @@ const roleMiddleware = require("../middleware/role");
 
 const authMiddleware = require("../middleware/auth");
 
-const chamadoStatus = require("../enum/enumStatus");
-
 const chamadoController = require("../controller/chamado.controller")
 
 router.post(

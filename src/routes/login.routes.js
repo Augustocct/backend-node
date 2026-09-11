@@ -12,58 +12,21 @@ const router = express.Router();
 
 const jwt = require('jsonwebtoken');
 
-const bcrypt = require('bcrypt');
+const loginController = require("../controller/login.controller");
 
-router.post("/criar", authMiddleware, roleMiddleware("admin"), async (req, res) => {
-    const { name, email, password, role} = req.body;
+router.post(
+    "/criar",
+    authMiddleware,
+    roleMiddleware("admin"),
+    loginController.create
+);
 
-    try {
-        const saltRounds = 10;
-
-        const passwordHash = await bcrypt.hash(password, saltRounds);
-
-        const result = await pool.query(
-            `INSERT INTO users (name, email, password_hash, role)
-             VALUES ($1, $2, $3, $4)
-             RETURNING *`,
-            [name, email, passwordHash, role]
-        );
-
-        res.status(201).json(result.rows[0]);
-
-    } catch (error) {
-        console.error(error);
-
-        res.status(500).json({
-            mensagem: "Erro ao criar usuário"
-        });
-    }
-});
-
-router.delete("/delete/:id", authMiddleware, roleMiddleware("admin"), async (req, res) => {
-        const { id } = req.params
-
-        try {
-        const result = await pool.query(
-        `DELETE FROM users
-        WHERE id = $1
-        RETURNING *`,
-        [id]
-        );
-    if (result.rows.length === 0) {
-            return res.status(404).json({
-                mensagem: "Usuario não encontrado"
-            });
-        }
-
-        res.json(result.rows[0]);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            mensagem: "Erro ao Deletar o usuario"
-        });
-    }
-});
+router.delete(
+    "/delete/:id",
+    authMiddleware,
+    roleMiddleware("admin"),
+    loginController.delete_user
+);
 
 router.post("/entrar", async (req, res) => {
     // PEGA O EMAIL E A SENHA DA REQUISICAO
