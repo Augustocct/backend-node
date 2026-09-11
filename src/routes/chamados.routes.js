@@ -8,6 +8,8 @@ const roleMiddleware = require("../middleware/role");
 
 const authMiddleware = require("../middleware/auth");
 
+const chamadoStatus = require("../enum/enumStatus");
+
 router.post("/create", authMiddleware, async (req, res) => {
     const { titulo, descricao, prioridade } = req.body;
 
@@ -75,6 +77,31 @@ router.put("/update-status/:id", authMiddleware, async (req, res) => {
     const { status } = req.body;
 
     try {
+
+        // VERIFICA SE O STATUS INFORMADO É VÁLIDO
+        if (!Object.values(chamadoStatus).includes(status)) {
+            return res.status(400).json({
+                mensagem: "Status inválido"
+            });
+        }
+
+        // CONSULTA NO BANCO O CHAMADO
+        const chamado = await pool.query(
+            `SELECT * FROM chamados WHERE id = $1`,
+            [id]
+        );
+
+        // VERIFICA SE O CHAMADO EXISTE
+        if (chamado.rows.length === 0) {
+            return res.status(404).json({
+                mensagem: "Chamado não encontrado"
+            });
+        }
+
+        // SALVA O STATUS ATUAL DO CHAMADO
+        const statusAnterior = chamado.rows[0].status;
+
+        // ATUALIZA O STATUS DO CHAMADO NO BANCO
         const result = await pool.query(
             `UPDATE chamados
                 SET status = $1
@@ -82,11 +109,14 @@ router.put("/update-status/:id", authMiddleware, async (req, res) => {
                 RETURNING *`,
             [status, id]
         );
-        if (result.rows.length === 0) {
-            return res.status(404).json({
-                mensagem: "Chamado não encontrado"
-            });
-        }
+
+        // INSERE O REGISTRO DA ALTERAÇÃO NA TABELA DE HISTÓRICO
+        await pool.query(
+            `INSERT INTO historico_chamados
+                (chamado_id, user_id, status_anterior, status_novo)
+            VALUES ($1, $2, $3, $4)`,
+            [id, req.user.id, statusAnterior, status]
+        );
 
         res.json(result.rows[0]);
     } catch (error) {
