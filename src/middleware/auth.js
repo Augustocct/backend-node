@@ -4,7 +4,6 @@ const blacklist = require("../service/tokenBlacklist");
 
 const authMiddleware = (req, res, next) => {
 
-
     // PEGA O TOKEN DA SESSAO ATUAL
     const authHeader = req.headers.authorization;
 
