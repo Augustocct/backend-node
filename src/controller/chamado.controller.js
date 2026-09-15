@@ -3,13 +3,14 @@ const chamadoService = require("../service/chamado.service");
 const chamadoStatus = require("../enum/enumStatus");
 
 const create = async (req, res) => {
-    const { titulo, descricao, prioridade } = req.body;
+    const { titulo, descricao, prioridade, user_id } = req.body;
 
     try {
         const chamado = await chamadoService.create(
             titulo,
             descricao,
-            prioridade
+            prioridade,
+            user_id
         );
 
         res.status(201).json(chamado);
@@ -17,6 +18,7 @@ const create = async (req, res) => {
     } catch (error) {
         console.error(error);
 
+        console.log(req.body)
         res.status(500).json({
             mensagem: "Erro ao criar chamado"
         });
@@ -40,17 +42,18 @@ const list = async (req, res) => {
 
 const update = async (req, res) => {
     const { id } = req.params;
-    const { titulo, descricao, prioridade } = req.body;
+    const { titulo, descricao, prioridade, user_id } = req.body;
 
     try {
         const result = await chamadoService.update(
             titulo, 
             descricao, 
             prioridade,
-            id
+            id,
+            user_id
         );
 
-        if (result.rows.length === 0) {
+        if (!result) {
             return res.status(404).json({
                 mensagem: "Chamado não encontrado"
             });
@@ -67,28 +70,32 @@ const update = async (req, res) => {
 
 const update_status = async (req, res) => {
     const { id } = req.params;
+
     const { status } = req.body;
 
+    const user_id = req.user.id;
     try {
         if (!Object.values(chamadoStatus).includes(status)) {
+            console.log(status)
             return res.status(400).json({
                 mensagem: "Status inválido"
             });
-        }
 
+        }
+        
         const result = await chamadoService.update_status(
             status,
             id,
-            req.user.id
+            user_id
         );
-
-        if (chamado.rows.length === 0) {
+        
+        if (!result) {
             return res.status(404).json({
                 mensagem: "Chamado não encontrado"
             });
         }
 
-        res.result(201).json(result);
+        res.status(201).json(result);
     } catch (error) {
         console.error(error);
         res.status(500).json({

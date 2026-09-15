@@ -1,13 +1,13 @@
 const pool = require("../database/database");
 
 
-const create = async (titulo, descricao, prioridade) => {
+const create = async (titulo, descricao, prioridade, user_id) => {
 
     const result = await pool.query(
-        `INSERT INTO chamados (titulo, descricao, prioridade)
-         VALUES ($1, $2, $3)
+        `INSERT INTO chamados (titulo, descricao, prioridade, user_id)
+         VALUES ($1, $2, $3, $4)
          RETURNING *`,
-        [titulo, descricao, prioridade]
+        [titulo, descricao, prioridade, user_id]
     );
 
     return result.rows[0];
@@ -19,13 +19,13 @@ const list = async () => {
     return result.rows;
 }
 
-const update = async (titulo, descricao, prioridade, id) => {
+const update = async (titulo, descricao, prioridade, id, user_id) => {
     const result = await pool.query(
             `UPDATE chamados
-                SET titulo = $1, descricao = $2, prioridade = $3
+                SET titulo = $1, descricao = $2, prioridade = $3, user_id = $5
                 WHERE id = $4
                 RETURNING *`,
-            [titulo, descricao, prioridade, id]
+            [titulo, descricao, prioridade, id, user_id]
         );
 
     return result.rows[0];
