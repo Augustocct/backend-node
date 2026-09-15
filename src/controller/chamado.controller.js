@@ -40,6 +40,31 @@ const list = async (req, res) => {
     }
 }
 
+const listbyuser = async (req, res) => {
+    const id = req.user.id;
+
+    try {
+        console.log(req.user)
+        const result = await chamadoService.listbyuser(
+            id
+        );
+
+        if (!result) {
+            return res.status(404).json({
+                mensagem: "Chamado não encontrado"
+            });
+        };
+
+        res.status(201).json(result);
+    } catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            mensagem: "Erro ao listar chamados"
+        });
+    }
+};
+
 const update = async (req, res) => {
     const { id } = req.params;
     const { titulo, descricao, prioridade, user_id } = req.body;
@@ -162,6 +187,7 @@ const delete_chamado = async (req, res) => {
 module.exports = {
     create,
     list,
+    listbyuser,
     update,
     update_status,
     update_priority,

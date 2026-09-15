@@ -22,6 +22,12 @@ router.get(
      chamadoController.list
 ); 
 
+router.get(
+    "/listbyuser",
+    authMiddleware,
+    chamadoController.listbyuser
+);
+
 router.put(
     "/update/:id",
     authMiddleware,

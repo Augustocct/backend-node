@@ -19,6 +19,15 @@ const list = async () => {
     return result.rows;
 }
 
+const listbyuser = async (id) => {
+    const result = await pool.query(
+        "SELECT * FROM chamados where user_id = $1",
+        [id]
+    );
+
+    return result.rows;
+}
+
 const update = async (titulo, descricao, prioridade, id, user_id) => {
     const result = await pool.query(
             `UPDATE chamados
@@ -87,5 +96,6 @@ module.exports = {
     update,
     update_status,
     update_priority,
-    delete_chamado
+    delete_chamado,
+    listbyuser
 };
