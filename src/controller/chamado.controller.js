@@ -3,7 +3,9 @@ const chamadoService = require("../service/chamado.service");
 const chamadoStatus = require("../enum/enumStatus");
 
 const create = async (req, res) => {
-    const { titulo, descricao, prioridade, user_id } = req.body;
+    const { titulo, descricao, prioridade} = req.body;
+
+    const user_id = req.user.id;
 
     try {
         const chamado = await chamadoService.create(
@@ -26,25 +28,33 @@ const create = async (req, res) => {
 };
 
 const list = async (req, res) => {
-    try {
-        const result = await chamadoService.list();
+    const role = req.user.role;
+    const id = req.user.id;
 
-        res.status(200).json(result);
+    try {
+        if (role === "admin") {
+            const result = await chamadoService.list();
+
+            return res.status(200).json(result);
+        } else {
+            const result = await chamadoService.listbyuser(id);
+
+            return res.status(200).json(result);
+        }
 
     } catch (error) {
         console.error(error);
 
-        res.status(500).json({
+        return res.status(500).json({
             mensagem: "Erro ao listar chamados"
         });
     }
-}
+};
 
 const listbyuser = async (req, res) => {
     const id = req.user.id;
 
     try {
-        console.log(req.user)
         const result = await chamadoService.listbyuser(
             id
         );
@@ -55,7 +65,7 @@ const listbyuser = async (req, res) => {
             });
         };
 
-        res.status(201).json(result);
+        res.status(200).json(result);
     } catch (error) {
         console.error(error);
 

@@ -66,7 +66,7 @@ const entrar = async (req, res) => {
     try {
         
         const result = await loginService.entrar(
-            email, password
+            email
         );
 
         if (!result) {
@@ -74,11 +74,12 @@ const entrar = async (req, res) => {
                 mensagem: "Usuário não encontrado"
             });
         }
-
+        
         const user = result;
 
-        if (password !== user.password) {
-            console.log(password)
+        const senhaValida = await bcrypt.compare(password, user.password_hash);
+
+        if (!senhaValida) {
             return res.status(401).json({
                 mensagem: "Senha inválida"
             });

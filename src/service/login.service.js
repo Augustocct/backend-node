@@ -44,7 +44,7 @@ const deleteUserById = async (id) => {
     }
 };
 
-const entrar = async (email, password) => {
+const entrar = async (email) => {
     const result = await pool.query(
             `SELECT id, name, email, password_hash, role
              FROM users

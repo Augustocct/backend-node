@@ -3,13 +3,13 @@ const logger = require('./middleware/logger');
 
 const app = express();
 
-const authMiddleware = require("./middleware/auth");
-
-const roleMiddleware = require("./middleware/role");
-
 const chamadosRoutes = require("./routes/chamados.routes");
 
 const loginRoutes = require("./routes/login.routes");
+
+const swaggerUi = require("swagger-ui-express");
+
+const swaggerSpec = require("../swagger.js");
 
 app.use(logger);
 
@@ -18,6 +18,8 @@ app.use(express.json());
 app.use("/login", loginRoutes);
 
 app.use("/chamados", chamadosRoutes);
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 
 app.get("/", async (req, res) => {
