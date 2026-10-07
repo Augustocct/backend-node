@@ -1,5 +1,6 @@
 const express = require("express");
 const logger = require('./middleware/logger');
+const cors = require('cors');
 
 const app = express();
 
@@ -10,6 +11,9 @@ const loginRoutes = require("./routes/login.routes");
 const swaggerUi = require("swagger-ui-express");
 
 const swaggerSpec = require("../swagger.js");
+
+
+app.use(cors());
 
 app.use(logger);
 
